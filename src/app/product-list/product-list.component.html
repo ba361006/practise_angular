@@ -1,5 +1,27 @@
 <h2>Products</h2>
 
+<div *ngFor="let product of products">
+  <h3>
+    <a [title]="product.name + ' details'">
+      {{ product.name}}
+    </a>
+  </h3>
+  <!-- 
+  if modify *ngIf to *ng123If, it doesn't show any error on the browser
+  is there anyway to detect the error like this?
+  -->
+  <p *ngIf="product.description">
+    Decription: {{ product.description }}
+  </p>
+
+  <button type="button" (click)="share()">
+    Share
+  </button>
+  <app-product-alerts 
+    [product]="product"
+    (notify)="onNotify()">
+  </app-product-alerts>
+</div>
 
 <!-- 
 Copyright Google LLC. All Rights Reserved.
