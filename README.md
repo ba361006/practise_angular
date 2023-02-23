@@ -1,8 +1,26 @@
+# This guide is based on MacOS, M1 chip
+
+## Get started
+1. install npm on your device
+2. clone this repo
+3. execute `npm install` to install dependencies of this project
+4. run the web server by [this](#to-ask-a-web-server-to-serve-this-angular-application)
+
+
 ## Command line
 - ng g c <component_name> (npm generate component)
     - ask angular to generate a component, and add the component to declaration in `app.module.ts`
-- ng serve --open
-    - start angular server
+
+## To ask a web server to serve this angular application:
+    1. Via ng serve
+        - go to the root directory
+        - execute `ng serve --open` in your terminal
+        - go to the printed link from your terminal
+    2. Via http-server
+        - execute `npm install -g http-server` in your terminal
+        - execute `ng build` in your terminal
+        - go to `./dist` directory
+        - execute `http-server -o` in your terminal
 
 
 ## Note
