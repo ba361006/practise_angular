@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 
 import { products } from '../products';
 
+// html/css can access properties under the class that specifies the templateUrl/styleUrls to it
+// and the html can use the tag 
+
 @Component({
   selector: 'app-product-list',
   templateUrl: './product-list.component.html',
@@ -9,7 +12,7 @@ import { products } from '../products';
 })
 export class ProductListComponent {
   products = products;
-
+  hello = {name:'hi'};
   share() {
     window.alert('The product has been shared!');
   }

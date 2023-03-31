@@ -19,6 +19,13 @@
   <button type="button" (click)="share()">
     Share
   </button>
+
+  <!-- 
+    this is to bind this component with another component(app-product-alerts)
+    this will take the variable product(element in products array) as an 
+    input([product]) to app-product-alerts
+    execute onNotify() if the notify event is emitted[(notify)]
+  -->
   <app-product-alerts 
     [product]="product"
     (notify)="onNotify()">
