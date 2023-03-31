@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-
 import { products } from '../products';
 
 // html/css can access properties under the class that specifies the templateUrl/styleUrls to it
