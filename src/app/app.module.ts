@@ -13,6 +13,7 @@ import { CartComponent } from './cart/cart.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ShippingComponent } from './shipping/shipping.component';
 import { FilterTableComponent } from './filter-table/filter-table.component';
+import { FilterWidgetComponent } from './filter-widget/filter-widget.component';
 
 @NgModule({
   imports: [
@@ -36,7 +37,8 @@ import { FilterTableComponent } from './filter-table/filter-table.component';
     ProductDetailsComponent,
     CartComponent,
     ShippingComponent,
-    FilterTableComponent
+    FilterTableComponent,
+    FilterWidgetComponent
   ],
   bootstrap: [
     AppComponent
