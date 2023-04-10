@@ -1,5 +1,12 @@
 <div>
-  <p-table [value]="cars"><!-- cars is the variable under FilterTableComponent -->
+  <!-- 
+  cars is the variable under FilterTableComponent
+  <p-table> will iterate over the variable that is assigned to [value] and pass each
+  element to <ng-template pTemplate="body" let-xxxx>
+  the 'let-xxxx' syntax is used to declare a template variable, 
+  the name of the variable doesn't matter
+  > -->
+  <p-table [value]="cars">
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="brand">Brand</th>
@@ -34,6 +41,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-car>
       <tr>
+        <!-- order only matters to UI, doesn't matter to filter -->
         <td>{{car.brand}}</td>
         <td>{{car.year}}</td>
         <td>{{car.color}}</td>
