@@ -8,37 +8,11 @@
   > -->
   <p-table [value]="cars">
     <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="brand">Brand</th>
-        <th pSortableColumn="year">Year</th>
-        <th pSortableColumn="color">Color</th>
-        <th pSortableColumn="price">Price</th>
-      </tr>
-      <tr>
-        <th>
-          <app-filter-widget
-            type="text" 
-            field="brand" 
-          ></app-filter-widget>
-        </th>
-        <th>
-          <app-filter-widget
-            type="numeric" 
-            field="year" 
-          ></app-filter-widget>
-        </th>        <th>
-          <app-filter-widget
-            type="text" 
-            field="color" 
-          ></app-filter-widget>
-        </th>        <th>
-          <app-filter-widget
-            type="numeric" 
-            field="price" 
-          ></app-filter-widget>
-        </th>
-      </tr>
+      <app-filter-widget 
+        [headerFilters]="headerFilters"
+      ></app-filter-widget>
     </ng-template>
+
     <ng-template pTemplate="body" let-car>
       <tr>
         <!-- order only matters to UI, doesn't matter to filter -->

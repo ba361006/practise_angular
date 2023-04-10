@@ -1,7 +1,18 @@
-<p-columnFilter 
-  [type]="type"
-  [field]="field"
-  [showMenu]="showMenu"
-  [showApplyButton]="showApplyButton"
-  [showClearButton]="showClearButton"
-></p-columnFilter>
+<!-- 
+  <tr> refers to table row
+  <th> refers to table header cell, it will be the column if <th> is wrapped by <th>
+-->
+<tr>
+  <ng-container *ngFor="let filter of headerFilters">
+    <th pSortableColumn="{{filter.field}}">{{filter.field}}</th>
+    <th>
+      <p-columnFilter
+        [type]="filter.type"
+        [field]="filter.field"
+        [showMenu]="true"
+        [showApplyButton]="true"
+        [showClearButton]="true"
+      ></p-columnFilter>
+    </th>
+  </ng-container>
+</tr>

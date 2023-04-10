@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
 
+export interface IHeaderFilter {
+  type: string;
+  field: string;
+}
 @Component({
   selector: 'app-filter-table',
   templateUrl: './filter-table.component.html',
@@ -26,4 +30,23 @@ export class FilterTableComponent {
       price: 200,
     }
   ];
+
+headerFilters: IHeaderFilter[] = [
+    {
+      type:"text", 
+      field:"brand"
+    },
+    {
+      type:"numeric",
+      field:"year",
+    },
+    {
+      type:"text",
+      field:"color",
+    },
+    {
+      type:"numeric",
+      field:"price",
+    },
+  ]
 }
