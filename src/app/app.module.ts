@@ -14,6 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ShippingComponent } from './shipping/shipping.component';
 import { FilterTableComponent } from './filter-table/filter-table.component';
 import { FilterWidgetComponent } from './filter-widget/filter-widget.component';
+import { TemplateVariableTestComponent } from './template-variable-test/template-variable-test.component';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { FilterWidgetComponent } from './filter-widget/filter-widget.component';
       { path: 'products/:productId', component: ProductDetailsComponent},
       { path: 'cart', component: CartComponent},
       { path: 'shipping', component: ShippingComponent},
-      { path: 'filterTable', component: FilterTableComponent}
+      { path: 'filterTable', component: FilterTableComponent},
+      { path: 'templateVariable', component: TemplateVariableTestComponent},
     ])
   ],
   declarations: [
@@ -38,7 +40,8 @@ import { FilterWidgetComponent } from './filter-widget/filter-widget.component';
     CartComponent,
     ShippingComponent,
     FilterTableComponent,
-    FilterWidgetComponent
+    FilterWidgetComponent,
+    TemplateVariableTestComponent,
   ],
   bootstrap: [
     AppComponent
