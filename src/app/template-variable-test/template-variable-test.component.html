@@ -1,1 +1,63 @@
-<p>template-variable-test works!</p>
+<!-- 
+  It's worth checking these sites
+  https://stackoverflow.com/questions/48523288/using-implict-to-pass-multiple-parameters/48524305#48524305
+  https://ithelp.ithome.com.tw/articles/10205829
+-->
+
+<!-- first example -->
+<ng-template #FirstExample>
+  First Example
+</ng-template>
+<div *ngTemplateOutlet="FirstExample"></div>
+<!-- first example -->
+
+
+<!-- second example -->
+<!-- 
+  $implicit is the reserved word in Angular
+  it allows us to define a default context object for a template
+  let-defaultArgument indicates let-defaultArgument="$implicit"
+-->
+<ng-container *ngTemplateOutlet="SecondExample; context: {$implicit:TColumns}"></ng-container>
+<ng-template #SecondExample let-defaultArgument>
+  <div>####################################</div>
+  <div>Second example</div>
+  <div>defaultArgument: {{defaultArgument[0].column}}</div>
+</ng-template>
+<!-- second example -->
+
+
+<!-- third example -->
+<!-- 
+  $implicit will be assigned to the the let-xxx if no argument is spcified
+  you can get another argument by specifying argument key
+-->
+<ng-container 
+  *ngTemplateOutlet="ThirdExample; context: {$implicit:TColumns, secondArgument:TValues}"
+></ng-container>
+<ng-template #ThirdExample let-defaultArgument let-secondArgument="secondArgument" let-noArgumentSpcified>
+  <div>####################################</div>
+  <div>Third example </div>
+  <div>defaultArgument: {{defaultArgument[0].column}}</div>
+  <div>secondArgument: {{secondArgument[0].value}}</div>
+  <div>noArgumentSpcified: {{noArgumentSpcified[0].column}}</div>
+  <div>By the way, it works: {{TColumns[2].column}} / {{TValues[1].value}}</div>
+  <div>####################################</div>
+</ng-template>
+<!-- third example -->
+
+
+<!-- 
+  assign empty string to arg would be treated as $implicit 
+  assign columns to arg works
+-->
+<div>
+  <p-table [columns]="TColumns" [value]="TValues">
+    <ng-template pTemplate="body" let-default let-arg="columns">
+      <tr>
+        <td>default.value: {{default.value}}</td>
+        <td>arg: {{arg[0].column}}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
