@@ -15,6 +15,7 @@ import { ShippingComponent } from './shipping/shipping.component';
 import { FilterTableComponent } from './filter-table/filter-table.component';
 import { FilterWidgetComponent } from './filter-widget/filter-widget.component';
 import { TemplateVariableTestComponent } from './template-variable-test/template-variable-test.component';
+import { PlaygroundComponent } from './playground/playground.component';
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { TemplateVariableTestComponent } from './template-variable-test/template
       { path: 'shipping', component: ShippingComponent},
       { path: 'filterTable', component: FilterTableComponent},
       { path: 'templateVariable', component: TemplateVariableTestComponent},
+      { path: 'playground', component: PlaygroundComponent},
     ])
   ],
   declarations: [
@@ -42,6 +44,7 @@ import { TemplateVariableTestComponent } from './template-variable-test/template
     FilterTableComponent,
     FilterWidgetComponent,
     TemplateVariableTestComponent,
+    PlaygroundComponent,
   ],
   bootstrap: [
     AppComponent
