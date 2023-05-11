@@ -1,0 +1,16 @@
+.legend-container{
+    display: flex;
+    align-items: center;
+    &--vm{
+        width: 30%;
+        height: auto;
+    }
+    &--status{
+        width: 40%;
+        height: auto;
+    }
+    &--throughput{
+        width: 30%;
+        height: auto;
+    }
+}
