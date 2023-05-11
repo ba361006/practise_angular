@@ -41,3 +41,17 @@
     - [href]: An attribute binding that allows you to dynamically set the URL for the `<a>` element. This can be useful when you need to generate links based on user input or other dynamic data.
     
     - [title]: An attribute binding that allows you to set the tooltip text for the `<a>` element. This can be useful for providing additional information or context about the link.
+
+
+## karma:
+    - go to karma.conf.js and set captureConsole to true like this, and we can see the output from console.log
+// Karma configuration file, see link for more information
+// https://karma-runner.github.io/1.0/config/configuration-file.html
+
+module.exports = function (config) {
+  config.set({
+    client: {
+      captureConsole: true,
+    },
+  });
+};

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-playground',
@@ -7,7 +8,6 @@ import { Component } from '@angular/core';
 })
 export class PlaygroundComponent {
   constructor() {
-    console.log('Hello, World!');
   };
 
 }
