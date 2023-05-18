@@ -51,7 +51,7 @@ export namespace EchartsGraphic{
       y: number,
       text: string,
       font: EchartsGraphic.Font,
-      colour = EchartsGraphic.Colour.black,
+      colour: EchartsGraphic.Colour,
     ) {
       return {
         type: 'text', 
@@ -72,6 +72,11 @@ export namespace EchartsGraphic{
   providedIn: 'root'
 })
 export class EchartsGraphicService{
+  private VM_HEADER_WIDTH = 64;
+  private VM_HEADER_HEIGHT = 100;
+  private VM_BODY_WIDTH = 58;
+  private VM_BODY_HEIGHT = 70;
+
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
 
@@ -80,7 +85,7 @@ export class EchartsGraphicService{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  getVMGroup(
+  public getVMGroup(
     name: string,
     utilisation: number,
     status: VMStatus,
@@ -92,13 +97,63 @@ export class EchartsGraphicService{
       draggable: true,
       onclick: () => console.log('VM clicked'),
       children: [
-        this.rectGenerator.genreate(x, y, 64, 100, EchartsGraphic.Colour.green),
-        this.rectGenerator.genreate(x+3, y+27, 58, 70, EchartsGraphic.Colour.white),
-        this.textGenerator.generate(x+15, y+6, name,EchartsGraphic.Font.header, EchartsGraphic.Colour.white),
-        this.textGenerator.generate(x+11, y+40, utilisation.toString()+'%', EchartsGraphic.Font.utilisation),
-        this.textGenerator.generate(x+9, y+70, status, EchartsGraphic.Font.status),
+        this.generateVMHeaderRect(x,y,status),
+        this.generateVMBodyRect(x,y),
+        this.generateHeaderText(x,y,name),
+        this.generateUtilisationText(x,y,utilisation),
+        this.generateStatusText(x,y,status),
       ]
     }
     return VMGroup;
   };
-}
+
+  private generateVMHeaderRect(x:number, y:number, VMStatus:VMStatus){
+    return this.rectGenerator.genreate(
+      x, 
+      y, 
+      this.VM_HEADER_WIDTH, 
+      this.VM_HEADER_HEIGHT, 
+      EchartsGraphic.Colour.green
+    );
+  }
+
+  private generateVMBodyRect(x:number, y:number){
+    return this.rectGenerator.genreate(
+      x + 3,
+      y + 27,
+      this.VM_BODY_WIDTH,
+      this.VM_BODY_HEIGHT,
+      EchartsGraphic.Colour.white,
+    )
+  }
+
+  private generateHeaderText(x:number, y:number, name:string){
+    return this.textGenerator.generate(
+      x + 15, 
+      y + 6, 
+      name, 
+      EchartsGraphic.Font.header, 
+      EchartsGraphic.Colour.white
+    )
+  }
+
+  private generateUtilisationText(x:number, y:number, utilisation:number){
+    return this.textGenerator.generate(
+      x + 11, 
+      y + 40, 
+      utilisation.toString()+'%', 
+      EchartsGraphic.Font.utilisation, 
+      EchartsGraphic.Colour.black
+    )
+  }
+
+  private generateStatusText(x:number, y:number, status:string){
+    return this.textGenerator.generate(
+      x + 9, 
+      y + 70, 
+      status, 
+      EchartsGraphic.Font.header, 
+      EchartsGraphic.Colour.black
+    )
+  }
+} // end of class
