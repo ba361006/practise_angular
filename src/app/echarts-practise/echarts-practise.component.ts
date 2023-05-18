@@ -148,7 +148,9 @@ export class EchartsPractiseComponent {
       let chart = echarts.init(element);
       chart.setOption({
         graphic: {
-          elements: [this.echartsService.getVMGroup()]
+          elements: [
+            this.echartsService.getVMGroup()
+          ]
         }
       })
     }
