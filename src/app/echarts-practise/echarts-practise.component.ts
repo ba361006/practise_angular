@@ -31,8 +31,9 @@ export class EchartsPractiseComponent {
         graphic: {
           elements: [
             this.echartsService.getVMGroup('VM1', 0, VMStatus.online, 50, 50),
-            this.echartsService.getVMGroup('VM2', 16, VMStatus.online, 150, 50),
-            this.echartsService.getVMGroup('VM3', 100, VMStatus.offline, 250, 50),
+            this.echartsService.getVMGroup('VM12', 16, VMStatus.online, 150, 50),
+            this.echartsService.getVMGroup('VM123', 50, VMStatus.offline, 250, 50),
+            this.echartsService.getVMGroup('VM1230', 100, VMStatus.offline, 350, 50),
           ]
         }
       })

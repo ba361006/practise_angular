@@ -105,7 +105,6 @@ class VMGroupGenerator{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  // this should be a class
   public getVMGroup(
     vmName: string,
     utilisation: number,
@@ -113,36 +112,39 @@ class VMGroupGenerator{
     x: number,
     y: number,
   ): echarts.GraphicComponentOption {
-    const vmNameCoordinate = this.getVmNameCoordinate(vmName, EchartsGraphic.Font.header, {x:x, y:y})
+    const baseCoordinate = {x:x, y:y} as Cooridnate;
+    const vmNameCoordinate = this.getVmNameCoordinate(vmName, EchartsGraphic.Font.header, baseCoordinate);
+    const utilisationCoordinate = this.getUtilisationCoordinate(utilisation.toString(), EchartsGraphic.Font.utilisation, baseCoordinate);
+    const statusCoordinate = this.getStatusCoordinate(status, EchartsGraphic.Font.status, baseCoordinate);
     let VMGroup: echarts.GraphicComponentOption = {
       type: 'group',
       draggable: true,
       onclick: () => console.log('VM clicked'),
       children: [
-        this.generateVMHeaderRect(x,y ,utilisationColourMapper(utilisation)),
-        this.generateVMBodyRect(x,y),
+        this.generateVMHeaderRect(baseCoordinate ,utilisationColourMapper(utilisation)),
+        this.generateVMBodyRect(baseCoordinate),
         this.generateVMNameText(vmNameCoordinate, vmName),
-        this.generateUtilisationText(x+this.utilisationXOffset(utilisation), y+this.utilisationYOffset(), utilisation),
-        this.generateStatusText(x,y,status),
+        this.generateUtilisationText(utilisationCoordinate, utilisation),
+        this.generateStatusText(statusCoordinate,status),
       ]
     }
     return VMGroup;
   };
 
-  private generateVMHeaderRect(x: number, y: number, colour: EchartsGraphic.Colour){
+  private generateVMHeaderRect(coordinate: Cooridnate, colour: EchartsGraphic.Colour){
     return this.rectGenerator.genreate(
-      x, 
-      y, 
+      coordinate.x, 
+      coordinate.y, 
       this.VM_HEADER_WIDTH, 
       this.VM_HEADER_HEIGHT, 
       colour,
     );
   }
 
-  private generateVMBodyRect(x:number, y:number){
+  private generateVMBodyRect(coordinate: Cooridnate){
     return this.rectGenerator.genreate(
-      x + this.VM_BODY_X_OFFSET,
-      y + this.VM_BODY_Y_OFFSET,
+      coordinate.x + this.VM_BODY_X_OFFSET,
+      coordinate.y + this.VM_BODY_Y_OFFSET,
       this.VM_BODY_WIDTH,
       this.VM_BODY_HEIGHT,
       EchartsGraphic.Colour.white,
@@ -159,31 +161,24 @@ class VMGroupGenerator{
     )
   }
 
-  private generateUtilisationText(x:number, y:number, utilisation:number){
+  private generateUtilisationText(coordinate: Cooridnate, utilisation:number){
     return this.textGenerator.generate(
-      x, 
-      y, 
+      coordinate.x, 
+      coordinate.y, 
       utilisation.toString()+'%', 
       EchartsGraphic.Font.utilisation, 
       EchartsGraphic.Colour.black
     )
   }
 
-  private generateStatusText(x:number, y:number, status:string){
+  private generateStatusText(coordinate: Cooridnate, status:string){
     return this.textGenerator.generate(
-      x + 9, 
-      y + 70, 
+      coordinate.x,
+      coordinate.y,
       status, 
       EchartsGraphic.Font.header, 
       EchartsGraphic.Colour.black
     )
-  }
-  private getVmNameCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Cooridnate) {
-    const shape = this.getTextShape(text, font);
-    return {
-      x: coordinate.x + Math.round((this.VM_HEADER_WIDTH - shape.x)/2),
-      y: coordinate.y + Math.round((this.VM_BODY_Y_OFFSET - shape.y)/2),
-    } as Cooridnate
   }
 
   private getTextShape(text: string, font: EchartsGraphic.Font): Cooridnate{
@@ -197,85 +192,29 @@ class VMGroupGenerator{
     return {x: width, y: height} as Cooridnate;
   }
 
-  private utilisationXOffset = (utilisation: number): number => {
-    // 15 is when font size equals to 22px, each word should offest 7px to the left
-    return this.VM_BODY_X_OFFSET + 15 - 7*(utilisation.toString().length-1);
+  private getVmNameCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Cooridnate) {
+    const shape = this.getTextShape(text, font);
+    return {
+      x: Math.round(coordinate.x + (this.VM_HEADER_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + (this.VM_BODY_Y_OFFSET - shape.y)/2),
+    } as Cooridnate
+  }
+  
+  private getUtilisationCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Cooridnate) {
+    const shape = this.getTextShape(text+'%', font);
+    return {
+      x: Math.round(coordinate.x + this.VM_BODY_X_OFFSET + (this.VM_BODY_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + this.VM_BODY_Y_OFFSET + 0.18*this.VM_BODY_HEIGHT),
+    } as Cooridnate
   }
 
-  private utilisationYOffset = (): number => {
-    // should locate at around the 20% from the top of vm body
-    return Math.ceil(this.VM_BODY_Y_OFFSET + this.VM_BODY_HEIGHT*0.2);
-  };
-
-  private statusXOffset = (): number => {
-    const getDigitsInString = /\d+/;
-    const matches = EchartsGraphic.Font.header.match(getDigitsInString);
-    const statusFontSize = matches ? parseInt(matches[0]) : 0;
-    return this.VM_BODY_WIDTH*0.2;
+  private getStatusCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Cooridnate) {
+    const shape = this.getTextShape(text, font);
+    return {
+      x: Math.round(coordinate.x + this.VM_BODY_X_OFFSET + (this.VM_BODY_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + this.VM_BODY_Y_OFFSET + (this.VM_BODY_HEIGHT - (0.18*this.VM_BODY_HEIGHT+shape.y)))
+    } as Cooridnate;
   }
-
-  // private getTextShape(text: string, font: EchartsGraphic.Font): Cooridnate{
-  //   const canvas = document.createElement('canvas');
-  //   const context = canvas.getContext('2d');
-  //   if (!context) throw new Error('Canvas context is not supported.');
-  //   context.font = font;
-  //   const metrics = context.measureText(text);
-  //   const width = metrics.width;
-  //   const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-  //   return {x: width, y: height} as Cooridnate;
-    // util second works
-    // const text = '100%'
-    // context.font = 'sans-serif 22px';
-    // let metrics = context.measureText(text);
-    // let width = Math.round(metrics.width);
-    // let height = Math.round(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
-
-    // const utilXOffset = (value: number) => {
-    //   return this.VM_BODY_X_OFFSET + Math.round((this.VM_BODY_WIDTH - value)/2);
-    // }
-    // const utilYOffset = (value: number) => {
-    //   return Math.round((this.VM_BODY_Y_OFFSET - value)/2);
-    // }
-    // console.log(width);
-    // console.log(utilXOffset(width));
-    // console.log(utilYOffset(height));
-    // console.log('-----------------------');
-    
-    // context.font = '22px sans-serif';
-    // metrics = context.measureText(text);
-    // width = Math.round(metrics.width);
-    // height = Math.round(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
-    // console.log(width);
-    // console.log(utilXOffset(width));
-    // console.log(utilYOffset(height));
-
-    // // FOr VM xOffset
-    // const text = 'VM1'
-    // context.font = 'sans-serif 16px';
-    // let metrics = context.measureText(text);
-    // let width = Math.round(metrics.width);
-    // let height = Math.round(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
-
-    // const vmNameXOffset = (value: number) => {
-    //   return Math.round((this.VM_HEADER_WIDTH - value)/2);
-    // }
-    // const vmNameYOffset = (value: number) => {
-    //   return Math.round((this.VM_BODY_Y_OFFSET - value)/2);
-    // }
-    // console.log(width);
-    // console.log(vmNameXOffset(width));
-    // console.log(vmNameYOffset(height));
-    // console.log('-----------------------');
-    
-    // context.font = '16px sans-serif';
-    // metrics = context.measureText(text);
-    // width = Math.round(metrics.width);
-    // height = Math.round(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
-    // console.log(width);
-    // console.log(vmNameXOffset(width));
-    // console.log(vmNameYOffset(height));
-
-  // }
 }
 
 @Injectable({
