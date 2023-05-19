@@ -65,17 +65,33 @@ export namespace EchartsGraphic{
       };
     }
   };
-
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-export class EchartsGraphicService{
-  private VM_HEADER_WIDTH = 64;
-  private VM_HEADER_HEIGHT = 100;
-  private VM_BODY_WIDTH = 58;
-  private VM_BODY_HEIGHT = 70;
+// factory should be a library
+// Make colour mapper factory that should produce vmcolour / lb colour / line colour
+const isGrey = (utilisation: number) => utilisation == 0
+const isGreen = (utilisation: number) => utilisation < 50
+const isYellow = (utilisation: number) => 50 <= utilisation && utilisation <= 70
+const isRed = (utilisation: number) => utilisation > 70
+const utilisationColourMapper = (utilisation: number) => {
+  switch(true){
+    case isGrey(utilisation): return EchartsGraphic.Colour.grey;
+    case isGreen(utilisation): return EchartsGraphic.Colour.green;
+    case isYellow(utilisation): return EchartsGraphic.Colour.yellow;
+    case isRed(utilisation): return EchartsGraphic.Colour.red;
+    default:
+      // should never get here
+      throw new Error(`Invalid utilisation: ${utilisation}`)
+  }
+}
+
+class VMGroupGenerator{
+  private readonly VM_HEADER_WIDTH: number = 64;
+  private readonly VM_HEADER_HEIGHT: number = 100;
+  private readonly VM_BODY_WIDTH: number = 58;
+  private readonly VM_BODY_HEIGHT: number = 70;
+  private readonly VM_BODY_X_OFFSET: number = 3;
+  private readonly VM_BODY_Y_OFFSET: number = 27;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -85,21 +101,33 @@ export class EchartsGraphicService{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
+  // this should be a class
   public getVMGroup(
-    name: string,
+    vmName: string,
     utilisation: number,
     status: VMStatus,
     x: number,
     y: number,
   ): echarts.GraphicComponentOption {
+    const vmNameXOffset = (vmName: string): number => {
+      // 15 is when font size equals to 16px, each word would offset 3px to the left
+      return 15 - 3*(vmName.length-3);
+    }
+    const vmNameYOffset = (): number => {
+      const getDigitsInString = /\d+/;
+      const matches = EchartsGraphic.Font.header.match(getDigitsInString);
+      const fontSize = matches ? parseInt(matches[0]) : 0;
+      return Math.ceil((this.VM_BODY_Y_OFFSET - fontSize)/2);
+    }
+
     let VMGroup: echarts.GraphicComponentOption = {
       type: 'group',
       draggable: true,
       onclick: () => console.log('VM clicked'),
       children: [
-        this.generateVMHeaderRect(x,y,status),
+        this.generateVMHeaderRect(x,y,utilisationColourMapper(utilisation)),
         this.generateVMBodyRect(x,y),
-        this.generateHeaderText(x,y,name),
+        this.generateVMNameText(x+vmNameXOffset(vmName), y+vmNameYOffset(),vmName),
         this.generateUtilisationText(x,y,utilisation),
         this.generateStatusText(x,y,status),
       ]
@@ -107,33 +135,34 @@ export class EchartsGraphicService{
     return VMGroup;
   };
 
-  private generateVMHeaderRect(x:number, y:number, VMStatus:VMStatus){
+  private generateVMHeaderRect(x:number, y:number, colour: EchartsGraphic.Colour){
     return this.rectGenerator.genreate(
       x, 
       y, 
       this.VM_HEADER_WIDTH, 
       this.VM_HEADER_HEIGHT, 
-      EchartsGraphic.Colour.green
+      colour,
     );
   }
 
   private generateVMBodyRect(x:number, y:number){
     return this.rectGenerator.genreate(
-      x + 3,
-      y + 27,
+      x + this.VM_BODY_X_OFFSET,
+      y + this.VM_BODY_Y_OFFSET,
       this.VM_BODY_WIDTH,
       this.VM_BODY_HEIGHT,
       EchartsGraphic.Colour.white,
     )
   }
 
-  private generateHeaderText(x:number, y:number, name:string){
+  private generateVMNameText(x:number, y:number, vmName:string){
+    console.log(x)
     return this.textGenerator.generate(
-      x + 15, 
-      y + 6, 
-      name, 
+      x, 
+      y, 
+      vmName, 
       EchartsGraphic.Font.header, 
-      EchartsGraphic.Colour.white
+      EchartsGraphic.Colour.white,
     )
   }
 
@@ -156,4 +185,24 @@ export class EchartsGraphicService{
       EchartsGraphic.Colour.black
     )
   }
-} // end of class
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class EchartsGraphicService{
+  private vmGroupGenerator: VMGroupGenerator
+  constructor() {
+    this.vmGroupGenerator = new VMGroupGenerator();
+  }
+
+  public getVMGroup(
+    vmName: string,
+    utilisation: number,
+    status: VMStatus,
+    x: number,
+    y: number,
+  ): echarts.GraphicComponentOption {
+    return this.vmGroupGenerator.getVMGroup(vmName, utilisation, status, x, y)
+  };
+}
