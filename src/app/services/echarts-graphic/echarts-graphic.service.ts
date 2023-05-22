@@ -32,6 +32,7 @@ export namespace EchartsGraphic{
     vmUtilisation = '22px sans-serif',
     vmStatus = '16px sans-serif',
     lbBody = '16px sans-serif',
+    zoneBody = '16px sans-serif',
   };
 
   export enum TextAlign{
@@ -47,6 +48,9 @@ export namespace EchartsGraphic{
       width: number, 
       height: number, 
       colour: EchartsGraphic.Colour,
+      round?: number[],
+      borderColour?: EchartsGraphic.Colour,
+      borderWidth?: number,
     ){
       return {
         type: 'rect',
@@ -55,8 +59,13 @@ export namespace EchartsGraphic{
           y: y,
           width: width,
           height: height,
+          r: round,
         },
-        style: {fill: colour},
+        style: {
+          fill: colour, 
+          stroke: borderColour,
+          lineWidth: borderWidth,
+        },
       };
     };
   }
@@ -95,14 +104,6 @@ export namespace EchartsGraphic{
     }
 
     protected getTextShape(text: string, font: EchartsGraphic.Font): Coordinate{
-      // const canvas = document.createElement('canvas');
-      // const context = canvas.getContext('2d');
-      // if (!context) throw new Error('Canvas context is not supported.');
-      // context.font = font;
-      // const metrics = context.measureText(text);
-      // const width = metrics.width;
-      // const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-      // return {x: width, y: height} as Coordinate;
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       if (!context) throw new Error('Canvas context is not supported.');
@@ -343,16 +344,75 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
   }
 }
 
+class ZoneGenerator extends EchartsGraphic.BaseGenerator{
+  private readonly BODY_WIDTH = 100;
+  private readonly BODY_HEIGHT = 70;
+  private readonly BODY_CORNER_ROUND = [15,15,15,15];
+  private readonly BODY_BORDER_WIDTH = 1;
+  constructor() { 
+    super()
+  }
+
+  public getZone(name: string, x: number, y: number): echarts.GraphicComponentOption{
+    const baseCoordinate = {x: x, y: y};
+    const bodyText = 'Zone ' + name;
+    const lbBodyTextCoordinate = this.getZoneBodyCoordinate(bodyText, EchartsGraphic.Font.zoneBody, baseCoordinate);
+    let lbGroup: echarts.GraphicComponentOption = {
+      type: 'group',
+      children: [
+        this.generateZoneBodyRect(baseCoordinate),
+        this.generateZoneBodyText(lbBodyTextCoordinate, bodyText),
+      ]
+    };
+    return lbGroup;
+  }
+  
+
+  private generateZoneBodyRect(coordinate: Coordinate) {
+    return this.rectGenerator.genreate(
+      coordinate.x,
+      coordinate.y,
+      this.BODY_WIDTH,
+      this.BODY_HEIGHT,
+      EchartsGraphic.Colour.white,
+      this.BODY_CORNER_ROUND,
+      EchartsGraphic.Colour.black,
+      this.BODY_BORDER_WIDTH,
+    );
+  }
+
+  private generateZoneBodyText(coordinate: Coordinate, text: string) {
+    return this.textGenerator.generate(
+      coordinate.x,
+      coordinate.y,
+      text,
+      EchartsGraphic.Font.zoneBody,
+      EchartsGraphic.Colour.black,
+    )
+  }
+
+  private getZoneBodyCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
+    // we need the BODY_X_OFFSET because we set the textAlign to centre here
+    const shape = this.getTextShape(text, font);
+    return {
+      x:Math.round(coordinate.x + (this.BODY_WIDTH - shape.x)/2),
+      y:Math.round(coordinate.y + (this.BODY_HEIGHT - shape.y)/2),
+    } as Coordinate;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class EchartsGraphicService{
   private vmGroupGenerator: VMGroupGenerator
   private lbGenerator: LoadBalanerGenerator
+  private zoneGenerator: ZoneGenerator
 
   constructor() {
     this.vmGroupGenerator = new VMGroupGenerator();
     this.lbGenerator = new LoadBalanerGenerator();
+    this.zoneGenerator = new ZoneGenerator();
   }
 
   public getVMGroup(
@@ -371,5 +431,13 @@ export class EchartsGraphicService{
     y: number
   ): echarts.GraphicComponentOption{
     return this.lbGenerator.getLoadBalancer(throughput, x, y);
+  };
+
+  public getZone(
+    name: string, 
+    x: number, 
+    y: number
+  ): echarts.GraphicComponentOption{
+    return this.zoneGenerator.getZone(name, x, y);
   };
 }

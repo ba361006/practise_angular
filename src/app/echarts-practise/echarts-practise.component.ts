@@ -39,6 +39,8 @@ export class EchartsPractiseComponent {
             this.echartsService.getVMGroup('VM9', 37, VMStatus.offline, 650, 50),
             this.echartsService.getVMGroup('VM0', 100, VMStatus.offline, 750, 50),
             this.echartsService.getLoadBalancer(49, 550, 400),
+            this.echartsService.getZone('A', 50, 415),
+            this.echartsService.getZone('B', 1050, 415),
           ]
         }
       })
