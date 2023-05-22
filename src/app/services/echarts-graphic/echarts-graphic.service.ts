@@ -129,6 +129,17 @@ const isGrey = (utilisation: number) => utilisation == 0
 const isGreen = (utilisation: number) => utilisation < 50
 const isYellow = (utilisation: number) => 50 <= utilisation && utilisation <= 70
 const isRed = (utilisation: number) => utilisation > 70
+const vmBodyTextColourMapper = (utilisation: number) => {
+  switch(true){
+    case isGrey(utilisation): return EchartsGraphic.Colour.textGrey;
+    case isGreen(utilisation): return EchartsGraphic.Colour.black;
+    case isYellow(utilisation): return EchartsGraphic.Colour.black;
+    case isRed(utilisation): return EchartsGraphic.Colour.black;
+    default:
+      // should never get here
+      throw new Error(`Invalid utilisation: ${utilisation}`)
+  }
+}
 const utilisationColourMapper = (utilisation: number) => {
   switch(true){
     case isGrey(utilisation): return EchartsGraphic.Colour.grey;
@@ -182,8 +193,8 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
         this.generateVMHeaderRect(baseCoordinate ,utilisationColourMapper(utilisation)),
         this.generateVMBodyRect(baseCoordinate),
         this.generateVMNameText(vmNameCoordinate, vmName),
-        this.generateUtilisationText(utilisationCoordinate, utilisation),
-        this.generateStatusText(statusCoordinate,status),
+        this.generateUtilisationText(utilisationCoordinate, utilisation, vmBodyTextColourMapper(utilisation)),
+        this.generateStatusText(statusCoordinate,status, vmBodyTextColourMapper(utilisation)),
       ]
     }
     return VMGroup;
@@ -219,23 +230,23 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     )
   }
 
-  private generateUtilisationText(coordinate: Coordinate, utilisation:number){
+  private generateUtilisationText(coordinate: Coordinate, utilisation:number, colour: EchartsGraphic.Colour){
     return this.textGenerator.generate(
       coordinate.x, 
       coordinate.y, 
       utilisation.toString()+'%', 
       EchartsGraphic.Font.vmUtilisation, 
-      EchartsGraphic.Colour.black
+      colour,
     )
   }
 
-  private generateStatusText(coordinate: Coordinate, status:string){
+  private generateStatusText(coordinate: Coordinate, status:string, colour: EchartsGraphic.Colour){
     return this.textGenerator.generate(
       coordinate.x,
       coordinate.y,
       status, 
       EchartsGraphic.Font.vmHeader, 
-      EchartsGraphic.Colour.black
+      colour,
     )
   }
 
