@@ -164,12 +164,12 @@ const throughputColourMapper = (throughput: number) => {
 }
 
 class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
-  private readonly VM_HEADER_WIDTH: number = 64;
-  private readonly VM_HEADER_HEIGHT: number = 100;
-  private readonly VM_BODY_WIDTH: number = 58;
-  private readonly VM_BODY_HEIGHT: number = 70;
-  private readonly VM_BODY_X_OFFSET: number = 3;
-  private readonly VM_BODY_Y_OFFSET: number = 27;
+  private readonly HEADER_WIDTH: number = 64;
+  private readonly HEADER_HEIGHT: number = 100;
+  private readonly BODY_WIDTH: number = 58;
+  private readonly BODY_HEIGHT: number = 70;
+  private readonly BODY_X_OFFSET: number = 3;
+  private readonly BODY_Y_OFFSET: number = 27;
 
   constructor() { 
     super()
@@ -204,18 +204,18 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     return this.rectGenerator.genreate(
       coordinate.x, 
       coordinate.y, 
-      this.VM_HEADER_WIDTH, 
-      this.VM_HEADER_HEIGHT, 
+      this.HEADER_WIDTH, 
+      this.HEADER_HEIGHT, 
       colour,
     );
   }
 
   private generateVMBodyRect(coordinate: Coordinate){
     return this.rectGenerator.genreate(
-      coordinate.x + this.VM_BODY_X_OFFSET,
-      coordinate.y + this.VM_BODY_Y_OFFSET,
-      this.VM_BODY_WIDTH,
-      this.VM_BODY_HEIGHT,
+      coordinate.x + this.BODY_X_OFFSET,
+      coordinate.y + this.BODY_Y_OFFSET,
+      this.BODY_WIDTH,
+      this.BODY_HEIGHT,
       EchartsGraphic.Colour.white,
     )
   }
@@ -253,24 +253,24 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
   private getVmNameCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
     const shape = this.getTextShape(text, font);
     return {
-      x: Math.round(coordinate.x + (this.VM_HEADER_WIDTH - shape.x)/2),
-      y: Math.round(coordinate.y + (this.VM_BODY_Y_OFFSET - shape.y)/2),
+      x: Math.round(coordinate.x + (this.HEADER_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + (this.BODY_Y_OFFSET - shape.y)/2),
     } as Coordinate
   }
   
   private getUtilisationCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
     const shape = this.getTextShape(text+'%', font);
     return {
-      x: Math.round(coordinate.x + this.VM_BODY_X_OFFSET + (this.VM_BODY_WIDTH - shape.x)/2),
-      y: Math.round(coordinate.y + this.VM_BODY_Y_OFFSET + 0.18*this.VM_BODY_HEIGHT),
+      x: Math.round(coordinate.x + this.BODY_X_OFFSET + (this.BODY_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + this.BODY_Y_OFFSET + 0.18*this.BODY_HEIGHT),
     } as Coordinate
   }
 
   private getStatusCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
     const shape = this.getTextShape(text, font);
     return {
-      x: Math.round(coordinate.x + this.VM_BODY_X_OFFSET + (this.VM_BODY_WIDTH - shape.x)/2),
-      y: Math.round(coordinate.y + this.VM_BODY_Y_OFFSET + (this.VM_BODY_HEIGHT - (0.18*this.VM_BODY_HEIGHT+shape.y)))
+      x: Math.round(coordinate.x + this.BODY_X_OFFSET + (this.BODY_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + this.BODY_Y_OFFSET + (this.BODY_HEIGHT - (0.18*this.BODY_HEIGHT+shape.y)))
     } as Coordinate;
   }
 }
@@ -316,8 +316,8 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     return this.rectGenerator.genreate(
       coordinate.x,
       coordinate.y,
-      this.LB_BODY_WIDTH,
-      this.LB_BODY_HEIGHT,
+      this.BODY_WIDTH,
+      this.BODY_HEIGHT,
       colour,
     );
   }
@@ -334,14 +334,13 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
   }
 
   private getLBBodyCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
-    // we need the LB_BODY_X_OFFSET because we set the textAlign to centre here
+    // we need the BODY_X_OFFSET because we set the textAlign to centre here
     const shape = this.getTextShape(text, font);
     return {
       x:Math.round(coordinate.x + this.BODY_X_OFFSET + (this.BODY_WIDTH - shape.x)/2),
       y:Math.round(coordinate.y + this.BODY_Y_OFFSET + (this.BODY_HEIGHT - shape.y)/2),
     } as Coordinate;
   }
-
 }
 
 @Injectable({
