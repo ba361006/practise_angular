@@ -95,14 +95,6 @@ export namespace EchartsGraphic{
   };
 
   export class BaseGenerator{
-    protected rectGenerator: EchartsGraphic.RectangleGenerator;
-    protected textGenerator: EchartsGraphic.TextGenerator;
-  
-    constructor() { 
-      this.rectGenerator = new EchartsGraphic.RectangleGenerator();
-      this.textGenerator = new EchartsGraphic.TextGenerator();
-    }
-
     protected getTextShape(text: string, font: EchartsGraphic.Font): Coordinate{
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
@@ -172,8 +164,13 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
   private readonly BODY_X_OFFSET: number = 3;
   private readonly BODY_Y_OFFSET: number = 27;
 
+  private rectGenerator: EchartsGraphic.RectangleGenerator;
+  private textGenerator: EchartsGraphic.TextGenerator;
+
   constructor() { 
     super()
+    this.rectGenerator = new EchartsGraphic.RectangleGenerator();
+    this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
   public getVMGroup(
@@ -281,8 +278,14 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
   private readonly BODY_HEIGHT = 100;
   private readonly BODY_X_OFFSET = 32;
   private readonly BODY_Y_OFFSET = -5;
+
+  private rectGenerator: EchartsGraphic.RectangleGenerator;
+  private textGenerator: EchartsGraphic.TextGenerator;
+
   constructor() { 
     super()
+    this.rectGenerator = new EchartsGraphic.RectangleGenerator();
+    this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
   public getLoadBalancer(throughput: number, x: number, y: number): echarts.GraphicComponentOption{
@@ -349,8 +352,14 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
   private readonly BODY_HEIGHT = 70;
   private readonly BODY_CORNER_ROUND = [15,15,15,15];
   private readonly BODY_BORDER_WIDTH = 1;
+
+  private rectGenerator: EchartsGraphic.RectangleGenerator;
+  private textGenerator: EchartsGraphic.TextGenerator;
+
   constructor() { 
     super()
+    this.rectGenerator = new EchartsGraphic.RectangleGenerator();
+    this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
   public getZone(name: string, x: number, y: number): echarts.GraphicComponentOption{
@@ -400,6 +409,8 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
     } as Coordinate;
   }
 }
+
+
 
 @Injectable({
   providedIn: 'root'
