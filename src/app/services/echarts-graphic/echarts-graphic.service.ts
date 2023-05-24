@@ -341,19 +341,24 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  public getLoadBalancer(throughput: number, x: number, y: number): echarts.GraphicComponentOption{
-    const baseCoordinate = {x: x, y: y};
+  public getLoadBalancer(coordinate: Coordinate, throughput: number): EchartsElement{
     const lbBodyText = `Load\nBalancer\n(${this.throughputStatusMapper(throughput)})`;
-    const lbBodyTextCoordinate = this.getLBBodyCoordinate(lbBodyText, EchartsGraphic.Font.lbBody, baseCoordinate);
+    const lbBodyTextCoordinate = this.getLBBodyCoordinate(lbBodyText, EchartsGraphic.Font.lbBody, coordinate);
     let lbGroup: echarts.GraphicComponentOption = {
       type: 'group',
       onclick: () => console.log('LB clicked'),
       children: [
-        this.generateLBBodyRect(baseCoordinate, throughputColourMapper(throughput)),
+        this.generateLBBodyRect(coordinate, throughputColourMapper(throughput)),
         this.generateLBBodyText(lbBodyTextCoordinate, lbBodyText),
       ]
     };
-    return lbGroup;
+    return {
+      top: this.getTopCoordinate(coordinate),
+      bottom: this.getBottmCoordinate(coordinate),
+      left: this.getleftCoordinate(coordinate),
+      right: this.getRightCoordinate(coordinate),
+      element: lbGroup,
+    } as EchartsElement;
   }
   
   private throughputStatusMapper(throughput: number): string {
@@ -413,18 +418,23 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  public getZone(name: string, x: number, y: number): echarts.GraphicComponentOption{
-    const baseCoordinate = {x: x, y: y};
+  public getZone(coordinate: Coordinate, name: string): EchartsElement{
     const bodyText = 'Zone ' + name;
-    const lbBodyTextCoordinate = this.getZoneBodyCoordinate(bodyText, EchartsGraphic.Font.zoneBody, baseCoordinate);
-    let lbGroup: echarts.GraphicComponentOption = {
+    const lbBodyTextCoordinate = this.getZoneBodyCoordinate(bodyText, EchartsGraphic.Font.zoneBody, coordinate);
+    let zoneGroup: echarts.GraphicComponentOption = {
       type: 'group',
       children: [
-        this.generateZoneBodyRect(baseCoordinate),
+        this.generateZoneBodyRect(coordinate),
         this.generateZoneBodyText(lbBodyTextCoordinate, bodyText),
       ]
     };
-    return lbGroup;
+    return {
+      top: this.getTopCoordinate(coordinate),
+      bottom: this.getBottmCoordinate(coordinate),
+      left: this.getleftCoordinate(coordinate),
+      right: this.getRightCoordinate(coordinate),
+      element: zoneGroup,
+    } as EchartsElement;
   }
   
 
@@ -513,16 +523,16 @@ export class EchartsGraphicService{
     x: number, 
     y: number,
     throughput: number, 
-  ): echarts.GraphicComponentOption{
-    return this.lbGenerator.getLoadBalancer(throughput, x, y);
+  ): EchartsElement{
+    return this.lbGenerator.getLoadBalancer({x:x, y:y}, throughput);
   };
 
   public getZone(
     x: number, 
     y: number,
     name: string, 
-  ): echarts.GraphicComponentOption{
-    return this.zoneGenerator.getZone(name, x, y);
+  ): EchartsElement{
+    return this.zoneGenerator.getZone({x:x, y:y}, name);
   };
 
   public drawLine(
