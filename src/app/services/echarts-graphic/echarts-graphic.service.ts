@@ -126,26 +126,26 @@ export namespace EchartsGraphic{
   }
 
   export abstract class BaseGenerator{
-    protected WIDTH: number;
-    protected HEIGHT: number;
+    protected OUTTER_WIDTH: number;
+    protected OUTTER_HEIGHT: number;
 
     constructor(width: number, height: number){
       // width and height is the width and the height of the most outter object
-      this.WIDTH = width;
-      this.HEIGHT = height;
+      this.OUTTER_WIDTH = width;
+      this.OUTTER_HEIGHT = height;
     }
 
     protected getTopCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:Math.round(upperLeft.x+this.WIDTH/2), y:upperLeft.y}
+      return {x:Math.round(upperLeft.x+this.OUTTER_WIDTH/2), y:upperLeft.y}
     }
     protected getBottmCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:Math.round(upperLeft.x+this.WIDTH/2), y:upperLeft.y+this.HEIGHT}
+      return {x:Math.round(upperLeft.x+this.OUTTER_WIDTH/2), y:upperLeft.y+this.OUTTER_HEIGHT}
     }
     protected getleftCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:upperLeft.x, y:Math.round(upperLeft.y+this.HEIGHT/2)};
+      return {x:upperLeft.x, y:Math.round(upperLeft.y+this.OUTTER_HEIGHT/2)};
     }
     protected getRightCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:upperLeft.x+this.WIDTH, y:Math.round(upperLeft.y+this.HEIGHT/2)}
+      return {x:upperLeft.x+this.OUTTER_WIDTH, y:Math.round(upperLeft.y+this.OUTTER_HEIGHT/2)}
     }
 
     protected getTextShape(text: string, font: EchartsGraphic.Font): Coordinate{
@@ -210,10 +210,10 @@ const throughputColourMapper = (throughput: number) => {
 }
 
 class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
-  private readonly BODY_WIDTH: number = 58;
-  private readonly BODY_HEIGHT: number = 70;
-  private readonly BODY_X_OFFSET: number = 3;
-  private readonly BODY_Y_OFFSET: number = 27;
+  private readonly INNER_WIDTH: number = 58;
+  private readonly INNER_HEIGHT: number = 70;
+  private readonly INNER_X_OFFSET: number = 3;
+  private readonly INNER_Y_OFFSET: number = 27;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -257,18 +257,18 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     return this.rectGenerator.genreate(
       coordinate.x, 
       coordinate.y, 
-      this.WIDTH, 
-      this.HEIGHT, 
+      this.OUTTER_WIDTH, 
+      this.OUTTER_HEIGHT, 
       colour,
     );
   }
 
   private generateVMBodyRect(coordinate: Coordinate){
     return this.rectGenerator.genreate(
-      coordinate.x + this.BODY_X_OFFSET,
-      coordinate.y + this.BODY_Y_OFFSET,
-      this.BODY_WIDTH,
-      this.BODY_HEIGHT,
+      coordinate.x + this.INNER_X_OFFSET,
+      coordinate.y + this.INNER_Y_OFFSET,
+      this.INNER_WIDTH,
+      this.INNER_HEIGHT,
       EchartsGraphic.Colour.white,
     )
   }
@@ -306,31 +306,31 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
   private getVmNameCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
     const shape = this.getTextShape(text, font);
     return {
-      x: Math.round(coordinate.x + (this.WIDTH - shape.x)/2),
-      y: Math.round(coordinate.y + (this.BODY_Y_OFFSET - shape.y)/2),
+      x: Math.round(coordinate.x + (this.OUTTER_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + (this.INNER_Y_OFFSET - shape.y)/2),
     } as Coordinate
   }
   
   private getUtilisationCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
     const shape = this.getTextShape(text+'%', font);
     return {
-      x: Math.round(coordinate.x + this.BODY_X_OFFSET + (this.BODY_WIDTH - shape.x)/2),
-      y: Math.round(coordinate.y + this.BODY_Y_OFFSET + 0.18*this.BODY_HEIGHT),
+      x: Math.round(coordinate.x + this.INNER_X_OFFSET + (this.INNER_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + this.INNER_Y_OFFSET + 0.18*this.INNER_HEIGHT),
     } as Coordinate
   }
 
   private getStatusCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
     const shape = this.getTextShape(text, font);
     return {
-      x: Math.round(coordinate.x + this.BODY_X_OFFSET + (this.BODY_WIDTH - shape.x)/2),
-      y: Math.round(coordinate.y + this.BODY_Y_OFFSET + (this.BODY_HEIGHT - (0.18*this.BODY_HEIGHT+shape.y)))
+      x: Math.round(coordinate.x + this.INNER_X_OFFSET + (this.INNER_WIDTH - shape.x)/2),
+      y: Math.round(coordinate.y + this.INNER_Y_OFFSET + (this.INNER_HEIGHT - (0.18*this.INNER_HEIGHT+shape.y)))
     } as Coordinate;
   }
 }
 
 class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
-  private readonly BODY_X_OFFSET = 32;
-  private readonly BODY_Y_OFFSET = -5;
+  private readonly INNER_X_OFFSET = 32;
+  private readonly INNER_Y_OFFSET = -5;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -373,8 +373,8 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     return this.rectGenerator.genreate(
       coordinate.x,
       coordinate.y,
-      this.WIDTH,
-      this.HEIGHT,
+      this.OUTTER_WIDTH,
+      this.OUTTER_HEIGHT,
       colour,
     );
   }
@@ -391,18 +391,18 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
   }
 
   private getLBBodyCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
-    // we need the BODY_X_OFFSET because we set the textAlign to centre here
+    // we need the INNER_X_OFFSET because we set the textAlign to centre here
     const shape = this.getTextShape(text, font);
     return {
-      x:Math.round(coordinate.x + this.BODY_X_OFFSET + (this.WIDTH - shape.x)/2),
-      y:Math.round(coordinate.y + this.BODY_Y_OFFSET + (this.HEIGHT - shape.y)/2),
+      x:Math.round(coordinate.x + this.INNER_X_OFFSET + (this.OUTTER_WIDTH - shape.x)/2),
+      y:Math.round(coordinate.y + this.INNER_Y_OFFSET + (this.OUTTER_HEIGHT - shape.y)/2),
     } as Coordinate;
   }
 }
 
 class ZoneGenerator extends EchartsGraphic.BaseGenerator{
-  private readonly BODY_CORNER_ROUND = [15,15,15,15];
-  private readonly BODY_BORDER_WIDTH = 1;
+  private readonly CORNER_ROUND = [15,15,15,15];
+  private readonly OUTTER_BORDER_WIDTH = 1;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -432,12 +432,12 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
     return this.rectGenerator.genreate(
       coordinate.x,
       coordinate.y,
-      this.WIDTH,
-      this.HEIGHT,
+      this.OUTTER_WIDTH,
+      this.OUTTER_HEIGHT,
       EchartsGraphic.Colour.white,
-      this.BODY_CORNER_ROUND,
+      this.CORNER_ROUND,
       EchartsGraphic.Colour.black,
-      this.BODY_BORDER_WIDTH,
+      this.OUTTER_BORDER_WIDTH,
     );
   }
 
@@ -452,11 +452,11 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
   }
 
   private getZoneBodyCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
-    // we need the BODY_X_OFFSET because we set the textAlign to centre here
+    // we need the INNER_X_OFFSET because we set the textAlign to centre here
     const shape = this.getTextShape(text, font);
     return {
-      x:Math.round(coordinate.x + (this.WIDTH - shape.x)/2),
-      y:Math.round(coordinate.y + (this.HEIGHT - shape.y)/2),
+      x:Math.round(coordinate.x + (this.OUTTER_WIDTH - shape.x)/2),
+      y:Math.round(coordinate.y + (this.OUTTER_HEIGHT - shape.y)/2),
     } as Coordinate;
   }
 }
