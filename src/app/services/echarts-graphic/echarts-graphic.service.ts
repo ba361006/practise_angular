@@ -94,6 +94,28 @@ export namespace EchartsGraphic{
     }
   };
 
+  export class LineGenerator{
+    generate(
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+    ): echarts.GraphicComponentOption{
+      return {
+        type: 'line',
+        shape: {
+          x1: x1,
+          y1: y1,
+          x2: x2,
+          y2: y2,
+        },
+        style: {
+          stroke: EchartsGraphic.Colour.black
+        },
+      };
+    }
+  }
+
   export class BaseGenerator{
     protected getTextShape(text: string, font: EchartsGraphic.Font): Coordinate{
       const canvas = document.createElement('canvas');
@@ -410,7 +432,30 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
   }
 }
 
+class LinkGenerator extends EchartsGraphic.BaseGenerator{
+  private textGenerator: EchartsGraphic.TextGenerator;
+  private lineGenerator: EchartsGraphic.LineGenerator;
 
+  constructor(){
+    super();
+    this.textGenerator = new EchartsGraphic.TextGenerator();
+    this.lineGenerator = new EchartsGraphic.LineGenerator();
+  }
+
+  drawLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): echarts.GraphicComponentOption{
+    return this.lineGenerator.generate(
+      x1,
+      y1,
+      x2,
+      y2,
+    );
+  }
+}
 
 @Injectable({
   providedIn: 'root'
@@ -419,11 +464,13 @@ export class EchartsGraphicService{
   private vmGroupGenerator: VMGroupGenerator
   private lbGenerator: LoadBalanerGenerator
   private zoneGenerator: ZoneGenerator
+  private linkGenerator: LinkGenerator
 
   constructor() {
     this.vmGroupGenerator = new VMGroupGenerator();
     this.lbGenerator = new LoadBalanerGenerator();
     this.zoneGenerator = new ZoneGenerator();
+    this.linkGenerator = new LinkGenerator();
   }
 
   public getVMGroup(
@@ -450,5 +497,14 @@ export class EchartsGraphicService{
     y: number
   ): echarts.GraphicComponentOption{
     return this.zoneGenerator.getZone(name, x, y);
+  };
+
+  public drawLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): echarts.GraphicComponentOption{
+    return this.linkGenerator.drawLine(x1,y1,x2,y2);
   };
 }

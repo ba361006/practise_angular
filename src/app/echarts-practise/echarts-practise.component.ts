@@ -2,20 +2,6 @@ import { Component } from '@angular/core';
 import { EchartsGraphicService, VMStatus } from '../services/echarts-graphic/echarts-graphic.service';
 import * as echarts from 'echarts';
 
-// let link = {
-//   type: 'line',
-//   shape: {
-//     x1: rectangle1.shape.x + rectangle1.shape.width / 2,  // middle of rectangle1
-//     y1: rectangle1.shape.y + rectangle1.shape.height / 2,  // middle of rectangle1
-//     x2: rectangle2.shape.x + rectangle2.shape.width / 2,  // middle of rectangle2
-//     y2: rectangle2.shape.y + rectangle2.shape.height / 2  // middle of rectangle2
-//   },
-//   style: {
-//     stroke: '#000'  // color of the line
-//   },
-//   z: 1000  // put the line on top
-// };
-
 @Component({
   selector: 'app-echarts-practise',
   templateUrl: './echarts-practise.component.html',
@@ -41,6 +27,7 @@ export class EchartsPractiseComponent {
             this.echartsService.getLoadBalancer(49, 550, 400),
             this.echartsService.getZone('A', 50, 415),
             this.echartsService.getZone('B', 1050, 415),
+            this.echartsService.drawLine(50, 200, 100, 250),
           ]
         }
       })
