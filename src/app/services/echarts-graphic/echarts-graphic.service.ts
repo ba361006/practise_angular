@@ -16,6 +16,14 @@ export interface Coordinate{
   y: number,
 }
 
+export interface EchartsElement{
+  element: echarts.GraphicComponentOption
+  top: Coordinate
+  bottom: Coordinate
+  left: Coordinate
+  right: Coordinate
+}
+
 export namespace EchartsGraphic{
   export enum Colour {
     white = '#ffffff',
@@ -31,6 +39,7 @@ export namespace EchartsGraphic{
     vmHeader = '16px sans-serif',
     vmUtilisation = '22px sans-serif',
     vmStatus = '16px sans-serif',
+    vmThroughput = '17px sans-serif',
     lbBody = '16px sans-serif',
     zoneBody = '16px sans-serif',
   };
@@ -117,6 +126,19 @@ export namespace EchartsGraphic{
   }
 
   export class BaseGenerator{
+    protected getTopCoordinate(upperLeft: Coordinate, width: number): Coordinate{
+      return {x:Math.round(upperLeft.x+width/2), y:upperLeft.y}
+    }
+    protected getBottmCoordinate(upperLeft: Coordinate, width: number, height: number): Coordinate{
+      return {x:Math.round(upperLeft.x+width/2), y:upperLeft.y+height}
+    }
+    protected getleftCoordinate(upperLeft: Coordinate, height: number): Coordinate{
+      return {x:upperLeft.x, y:Math.round(upperLeft.y+height/2)};
+    }
+    protected getRightCoordinate(upperLeft: Coordinate, width: number, height: number): Coordinate{
+      return {x:upperLeft.x+width, y:Math.round(upperLeft.y+height/2)}
+    }
+
     protected getTextShape(text: string, font: EchartsGraphic.Font): Coordinate{
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
@@ -190,7 +212,7 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
   private textGenerator: EchartsGraphic.TextGenerator;
 
   constructor() { 
-    super()
+    super();
     this.rectGenerator = new EchartsGraphic.RectangleGenerator();
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
@@ -201,7 +223,7 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     status: VMStatus,
     x: number,
     y: number,
-  ): echarts.GraphicComponentOption {
+  ): EchartsElement {
     const baseCoordinate = {x:x, y:y} as Coordinate;
     const vmNameCoordinate = this.getVmNameCoordinate(vmName, EchartsGraphic.Font.vmHeader, baseCoordinate);
     const utilisationCoordinate = this.getUtilisationCoordinate(utilisation.toString(), EchartsGraphic.Font.vmUtilisation, baseCoordinate);
@@ -217,7 +239,13 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
         this.generateStatusText(statusCoordinate,status, vmBodyTextColourMapper(utilisation)),
       ]
     }
-    return VMGroup;
+    return {
+      top: this.getTopCoordinate(baseCoordinate, this.HEADER_WIDTH),
+      bottom: this.getBottmCoordinate(baseCoordinate, this.HEADER_WIDTH, this.HEADER_HEIGHT),
+      left: this.getleftCoordinate(baseCoordinate, this.HEADER_HEIGHT),
+      right: this.getRightCoordinate(baseCoordinate, this.HEADER_WIDTH, this.HEADER_HEIGHT),
+      element: VMGroup,
+    } as EchartsElement;
   };
 
   private generateVMHeaderRect(coordinate: Coordinate, colour: EchartsGraphic.Colour){
@@ -432,27 +460,24 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
   }
 }
 
-class LinkGenerator extends EchartsGraphic.BaseGenerator{
+class LinkGenerator{
   private textGenerator: EchartsGraphic.TextGenerator;
   private lineGenerator: EchartsGraphic.LineGenerator;
 
   constructor(){
-    super();
     this.textGenerator = new EchartsGraphic.TextGenerator();
     this.lineGenerator = new EchartsGraphic.LineGenerator();
   }
 
   drawLine(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
+    from: Coordinate,
+    to: Coordinate
   ): echarts.GraphicComponentOption{
     return this.lineGenerator.generate(
-      x1,
-      y1,
-      x2,
-      y2,
+      from.x,
+      from.y,
+      to.x,
+      to.y,
     );
   }
 }
@@ -479,7 +504,7 @@ export class EchartsGraphicService{
     status: VMStatus,
     x: number,
     y: number,
-  ): echarts.GraphicComponentOption {
+  ): EchartsElement {
     return this.vmGroupGenerator.getVMGroup(vmName, utilisation, status, x, y)
   };
 
@@ -500,11 +525,9 @@ export class EchartsGraphicService{
   };
 
   public drawLine(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
+    from: Coordinate,
+    to: Coordinate
   ): echarts.GraphicComponentOption{
-    return this.linkGenerator.drawLine(x1,y1,x2,y2);
+    return this.linkGenerator.drawLine(from, to);
   };
 }
