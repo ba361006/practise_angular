@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { EchartsGraphicService, VMStatus, EchartsElement } from '../services/echarts-graphic/echarts-graphic.service';
+import { EchartsGraphicService, VMStatus, LBStatus } from '../services/echarts-graphic/echarts-graphic.service';
 import * as echarts from 'echarts';
 
 @Component({
@@ -13,15 +13,15 @@ export class EchartsPractiseComponent {
     const element = document.getElementById('main');
     if (element){
       let chart = echarts.init(element);
-      const VM1 = this.echartsService.getVMGroup(50, 50, 'VM1', 0, VMStatus.online, 4, 1);
-      const VM12 = this.echartsService.getVMGroup(150, 50, 'VM12', 16, VMStatus.online, 4, 1);
-      const VM123 = this.echartsService.getVMGroup(250, 50, 'VM123', 50, VMStatus.offline, 4, 1);
-      const VM1230 = this.echartsService.getVMGroup(350, 50, 'VM1230', 87, VMStatus.offline, 4, 1);
-      const VM110 = this.echartsService.getVMGroup(450, 50, 'VM110', 53, VMStatus.offline, 4, 1);
-      const VM10 = this.echartsService.getVMGroup(550, 50, 'VM10', 4, VMStatus.offline, 4, 1);
-      const VM9 = this.echartsService.getVMGroup(650, 50, 'VM9', 37, VMStatus.offline, 4, 1);
-      const VM0 = this.echartsService.getVMGroup(750, 50, 'VM0', 100, VMStatus.offline, 4, 1);
-      const lb = this.echartsService.getLoadBalancer(550, 400, 'LB-01', 49);
+      const VM1 = this.echartsService.getVMGroup(50, 50, 'VM1', 0, VMStatus.offline, 4, 0);
+      const VM12 = this.echartsService.getVMGroup(150, 50, 'VM12', 0, VMStatus.offline, 0, 0);
+      const VM123 = this.echartsService.getVMGroup(250, 50, 'VM123', 50, VMStatus.online, 4, 1);
+      const VM1230 = this.echartsService.getVMGroup(350, 50, 'VM1230', 87, VMStatus.online, 0, 0);
+      const VM110 = this.echartsService.getVMGroup(450, 50, 'VM110', 53, VMStatus.online, 4, 1);
+      const VM10 = this.echartsService.getVMGroup(550, 50, 'VM10', 4, VMStatus.online, 4, 1);
+      const VM9 = this.echartsService.getVMGroup(650, 50, 'VM9', 37, VMStatus.online, 4, 1);
+      const VM0 = this.echartsService.getVMGroup(750, 50, 'VM0', 100, VMStatus.online, 4, 1);
+      const lb = this.echartsService.getLoadBalancer(550, 400, 'LB-01', LBStatus.online);
       const zoneA = this.echartsService.getZone(50, 415, 'A');
       const zoneB = this.echartsService.getZone(1050, 415, 'B');
       chart.setOption({

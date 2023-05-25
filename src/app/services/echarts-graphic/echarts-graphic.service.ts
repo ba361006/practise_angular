@@ -7,7 +7,7 @@ export enum VMStatus{
   offline = 'Offline',
 }
 
-enum LBStatus{
+export enum LBStatus{
   online = 'Online',
   offline = 'Offline',
 }
@@ -180,18 +180,7 @@ const isGrey = (utilisation: number) => utilisation == 0
 const isGreen = (utilisation: number) => utilisation < 50
 const isYellow = (utilisation: number) => 50 <= utilisation && utilisation <= 70
 const isRed = (utilisation: number) => utilisation > 70
-const vmBodyTextColourMapper = (utilisation: number) => {
-  switch(true){
-    case isGrey(utilisation): return EchartsGraphic.Colour.textGrey;
-    case isGreen(utilisation): return EchartsGraphic.Colour.black;
-    case isYellow(utilisation): return EchartsGraphic.Colour.black;
-    case isRed(utilisation): return EchartsGraphic.Colour.black;
-    default:
-      // should never get here
-      throw new Error(`Invalid utilisation: ${utilisation}`)
-  }
-}
-const utilisationColourMapper = (utilisation: number) => {
+const vmUtilisationToTextColour = (utilisation: number) => {
   switch(true){
     case isGrey(utilisation): return EchartsGraphic.Colour.grey;
     case isGreen(utilisation): return EchartsGraphic.Colour.green;
@@ -202,16 +191,18 @@ const utilisationColourMapper = (utilisation: number) => {
       throw new Error(`Invalid utilisation: ${utilisation}`)
   }
 }
-const throughputColourMapper = (throughput: number) => {
-  switch(true){
-    case isGrey(throughput): return EchartsGraphic.Colour.grey;
-    case isGreen(throughput): return EchartsGraphic.Colour.green;
-    case isYellow(throughput): return EchartsGraphic.Colour.yellow;
-    case isRed(throughput): return EchartsGraphic.Colour.red;
-    default:
-      // should never get here
-      throw new Error(`Invalid throughput: ${throughput}`)
-  }
+const lbStatusToRectColour = (status: LBStatus) => {
+  return {
+    [LBStatus.online]: EchartsGraphic.Colour.green,
+    [LBStatus.offline]: EchartsGraphic.Colour.grey,
+  }[status]
+}
+
+const vmStatusToTextColour = (status: VMStatus) => {
+  return {
+    [VMStatus.online]: EchartsGraphic.Colour.black,
+    [VMStatus.offline]: EchartsGraphic.Colour.textGrey,
+  }[status]
 }
 
 class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
@@ -244,11 +235,11 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
       type: 'group',
       onclick: () => console.log('VM clicked'),
       children: [
-        this.generateVMHeaderRect(coordinate ,utilisationColourMapper(utilisation)),
+        this.generateVMHeaderRect(coordinate ,vmUtilisationToTextColour(utilisation)),
         this.generateVMBodyRect(coordinate),
         this.generateVMNameText(vmNameCoordinate, vmName),
-        this.generateUtilisationText(utilisationCoordinate, utilisation, vmBodyTextColourMapper(utilisation)),
-        this.generateStatusText(statusCoordinate, status, vmBodyTextColourMapper(utilisation)),
+        this.generateUtilisationText(utilisationCoordinate, utilisation, vmStatusToTextColour(status)),
+        this.generateStatusText(statusCoordinate, status, vmStatusToTextColour(status)),
       ]
     }
     return {
@@ -264,10 +255,11 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     coordinate: Coordinate,
     throughput: number,
     packetRate: number,
+    status: VMStatus,
   ): EchartsElement{
     const text = `${throughput} Gbps\n${packetRate} Kpps`;
     const networkPerformanceCoordinate = this.getNetworkPerformanceCoordinate(coordinate, text, EchartsGraphic.Font.vmNetworkPerformance);
-    const networkPerformance: echarts.GraphicComponentOption = this.generateNetworkPerformanceText(networkPerformanceCoordinate, text, EchartsGraphic.Colour.black)
+    const networkPerformance: echarts.GraphicComponentOption = this.generateNetworkPerformanceText(networkPerformanceCoordinate, text, vmStatusToTextColour(status))
     const textShape = this.getTextShape(text, EchartsGraphic.Font.vmNetworkPerformance);
     textShape.y += this.NETWORK_PERFORMANCE_BOTTOM_Y_OFFSET;
     return {
@@ -385,14 +377,14 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  public getLoadBalancer(coordinate: Coordinate, lbName: string, throughput: number): EchartsElement{
-    const lbBodyText = `${lbName}\n\n(${this.throughputStatusMapper(throughput)})`;
+  public getLoadBalancer(coordinate: Coordinate, name: string, status: LBStatus): EchartsElement{
+    const lbBodyText = `${name}\n\n(${status})`;
     const lbBodyTextCoordinate = this.getLBBodyCoordinate(lbBodyText, EchartsGraphic.Font.lbBody, coordinate);
     let lbGroup: echarts.GraphicComponentOption = {
       type: 'group',
       onclick: () => console.log('LB clicked'),
       children: [
-        this.generateLBBodyRect(coordinate, throughputColourMapper(throughput)),
+        this.generateLBBodyRect(coordinate, lbStatusToRectColour(status)),
         this.generateLBBodyText(lbBodyTextCoordinate, lbBodyText),
       ]
     };
@@ -572,6 +564,7 @@ export class EchartsGraphicService{
         upperLeftCooridnate,
         throughput,
         packetRate,
+        status,
       )
     } as EchartsVMGroup;
   };
@@ -579,10 +572,10 @@ export class EchartsGraphicService{
   public getLoadBalancer(
     x: number, 
     y: number,
-    lbName: string,
-    throughput: number, 
+    name: string,
+    status: LBStatus, 
   ): EchartsElement{
-    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, lbName, throughput);
+    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, name, status);
   };
 
   public getZone(
