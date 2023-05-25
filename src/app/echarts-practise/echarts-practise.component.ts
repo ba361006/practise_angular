@@ -21,7 +21,7 @@ export class EchartsPractiseComponent {
       const VM10 = this.echartsService.getVMGroup(550, 50, 'VM10', 4, VMStatus.offline, 4, 1);
       const VM9 = this.echartsService.getVMGroup(650, 50, 'VM9', 37, VMStatus.offline, 4, 1);
       const VM0 = this.echartsService.getVMGroup(750, 50, 'VM0', 100, VMStatus.offline, 4, 1);
-      const lb = this.echartsService.getLoadBalancer(550, 400, 49);
+      const lb = this.echartsService.getLoadBalancer(550, 400, 'LB-01', 49);
       const zoneA = this.echartsService.getZone(50, 415, 'A');
       const zoneB = this.echartsService.getZone(1050, 415, 'B');
       chart.setOption({

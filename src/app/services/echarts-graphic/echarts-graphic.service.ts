@@ -373,8 +373,8 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
 }
 
 class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
-  private readonly INNER_X_OFFSET = 32;
-  private readonly INNER_Y_OFFSET = -5;
+  private readonly INNER_X_OFFSET = 27;
+  private readonly INNER_Y_OFFSET = -10;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -385,8 +385,8 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  public getLoadBalancer(coordinate: Coordinate, throughput: number): EchartsElement{
-    const lbBodyText = `Load\nBalancer\n(${this.throughputStatusMapper(throughput)})`;
+  public getLoadBalancer(coordinate: Coordinate, lbName: string, throughput: number): EchartsElement{
+    const lbBodyText = `${lbName}\n\n(${this.throughputStatusMapper(throughput)})`;
     const lbBodyTextCoordinate = this.getLBBodyCoordinate(lbBodyText, EchartsGraphic.Font.lbBody, coordinate);
     let lbGroup: echarts.GraphicComponentOption = {
       type: 'group',
@@ -579,9 +579,10 @@ export class EchartsGraphicService{
   public getLoadBalancer(
     x: number, 
     y: number,
+    lbName: string,
     throughput: number, 
   ): EchartsElement{
-    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, throughput);
+    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, lbName, throughput);
   };
 
   public getZone(
