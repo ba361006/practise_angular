@@ -24,6 +24,11 @@ export interface EchartsElement{
   right: Coordinate
 }
 
+export interface EchartsVMGroup{
+  vmGroup: EchartsElement
+  networkPerformance: EchartsElement
+}
+
 export namespace EchartsGraphic{
   export enum Colour {
     white = '#ffffff',
@@ -39,7 +44,7 @@ export namespace EchartsGraphic{
     vmName = '16px sans-serif',
     vmUtilisation = '22px sans-serif',
     vmStatus = '16px sans-serif',
-    vmThroughput = '17px sans-serif',
+    vmNetworkPerformance = '17px sans-serif',
     lbBody = '16px sans-serif',
     zoneBody = '16px sans-serif',
   };
@@ -135,17 +140,17 @@ export namespace EchartsGraphic{
       this.OUTTER_HEIGHT = height;
     }
 
-    protected getTopCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:Math.round(upperLeft.x+this.OUTTER_WIDTH/2), y:upperLeft.y}
+    protected getTopCoordinate(upperLeft: Coordinate, width: number = this.OUTTER_WIDTH): Coordinate{
+      return {x:Math.round(upperLeft.x+width/2), y:upperLeft.y};
     }
-    protected getBottmCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:Math.round(upperLeft.x+this.OUTTER_WIDTH/2), y:upperLeft.y+this.OUTTER_HEIGHT}
+    protected getBottmCoordinate(upperLeft: Coordinate, width: number = this.OUTTER_WIDTH, height: number = this.OUTTER_HEIGHT): Coordinate{
+      return {x:Math.round(upperLeft.x+width/2), y:upperLeft.y+height};
     }
-    protected getleftCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:upperLeft.x, y:Math.round(upperLeft.y+this.OUTTER_HEIGHT/2)};
+    protected getleftCoordinate(upperLeft: Coordinate, height: number = this.OUTTER_HEIGHT): Coordinate{
+      return {x:upperLeft.x, y:Math.round(upperLeft.y+height/2)};
     }
-    protected getRightCoordinate(upperLeft: Coordinate): Coordinate{
-      return {x:upperLeft.x+this.OUTTER_WIDTH, y:Math.round(upperLeft.y+this.OUTTER_HEIGHT/2)}
+    protected getRightCoordinate(upperLeft: Coordinate, width: number = this.OUTTER_WIDTH, height: number = this.OUTTER_HEIGHT): Coordinate{
+      return {x:upperLeft.x+width, y:Math.round(upperLeft.y+height/2)};
     }
 
     protected getTextShape(text: string, font: EchartsGraphic.Font): Coordinate{
@@ -214,6 +219,8 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
   private readonly INNER_HEIGHT: number = 70;
   private readonly INNER_X_OFFSET: number = 3;
   private readonly INNER_Y_OFFSET: number = 27;
+  private readonly NETWORK_PERFORMANCE_Y_OFFSET: number = 5;
+  private readonly NETWORK_PERFORMANCE_BOTTOM_Y_OFFSET: number = 8;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -230,10 +237,10 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     utilisation: number,
     status: VMStatus,
   ): EchartsElement {
-    const vmNameCoordinate = this.getVmNameCoordinate(vmName, EchartsGraphic.Font.vmName, coordinate);
-    const utilisationCoordinate = this.getUtilisationCoordinate(utilisation.toString(), EchartsGraphic.Font.vmUtilisation, coordinate);
-    const statusCoordinate = this.getStatusCoordinate(status, EchartsGraphic.Font.vmStatus, coordinate);
-    let VMGroup: echarts.GraphicComponentOption = {
+    const vmNameCoordinate = this.getVmNameCoordinate(coordinate, vmName, EchartsGraphic.Font.vmName);
+    const utilisationCoordinate = this.getUtilisationCoordinate(coordinate, utilisation.toString(), EchartsGraphic.Font.vmUtilisation);
+    const statusCoordinate = this.getStatusCoordinate(coordinate, status, EchartsGraphic.Font.vmStatus);
+    const vmGroup: echarts.GraphicComponentOption = {
       type: 'group',
       onclick: () => console.log('VM clicked'),
       children: [
@@ -241,7 +248,7 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
         this.generateVMBodyRect(coordinate),
         this.generateVMNameText(vmNameCoordinate, vmName),
         this.generateUtilisationText(utilisationCoordinate, utilisation, vmBodyTextColourMapper(utilisation)),
-        this.generateStatusText(statusCoordinate,status, vmBodyTextColourMapper(utilisation)),
+        this.generateStatusText(statusCoordinate, status, vmBodyTextColourMapper(utilisation)),
       ]
     }
     return {
@@ -249,9 +256,28 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
       bottom: this.getBottmCoordinate(coordinate),
       left: this.getleftCoordinate(coordinate),
       right: this.getRightCoordinate(coordinate),
-      element: VMGroup,
+      element: vmGroup,
     } as EchartsElement;
   };
+
+  public getVMNetworkPerformance(
+    coordinate: Coordinate,
+    throughput: number,
+    packetRate: number,
+  ): EchartsElement{
+    const text = `${throughput} Gbps\n${packetRate} Kpps`;
+    const networkPerformanceCoordinate = this.getNetworkPerformanceCoordinate(coordinate, text, EchartsGraphic.Font.vmNetworkPerformance);
+    const networkPerformance: echarts.GraphicComponentOption = this.generateNetworkPerformanceText(networkPerformanceCoordinate, text, EchartsGraphic.Colour.black)
+    const textShape = this.getTextShape(text, EchartsGraphic.Font.vmNetworkPerformance);
+    textShape.y += this.NETWORK_PERFORMANCE_BOTTOM_Y_OFFSET;
+    return {
+      top: this.getTopCoordinate(networkPerformanceCoordinate, textShape.x),
+      bottom: this.getBottmCoordinate(networkPerformanceCoordinate, textShape.x, textShape.y),
+      left: this.getleftCoordinate(networkPerformanceCoordinate, textShape.y),
+      right: this.getRightCoordinate(networkPerformanceCoordinate, textShape.x, textShape.y),
+      element: networkPerformance,
+    } as EchartsElement;
+  }
 
   private generateVMHeaderRect(coordinate: Coordinate, colour: EchartsGraphic.Colour){
     return this.rectGenerator.genreate(
@@ -303,7 +329,17 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     )
   }
 
-  private getVmNameCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
+  private generateNetworkPerformanceText(cooridnate: Coordinate, text: string, colour: EchartsGraphic.Colour){
+    return this.textGenerator.generate(
+      cooridnate.x,
+      cooridnate.y,
+      text,
+      EchartsGraphic.Font.vmNetworkPerformance,
+      colour,
+    )
+  }
+
+  private getVmNameCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font) {
     const shape = this.getTextShape(text, font);
     return {
       x: Math.round(coordinate.x + (this.OUTTER_WIDTH - shape.x)/2),
@@ -311,7 +347,7 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     } as Coordinate
   }
   
-  private getUtilisationCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
+  private getUtilisationCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font) {
     const shape = this.getTextShape(text+'%', font);
     return {
       x: Math.round(coordinate.x + this.INNER_X_OFFSET + (this.INNER_WIDTH - shape.x)/2),
@@ -319,11 +355,19 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     } as Coordinate
   }
 
-  private getStatusCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
+  private getStatusCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font) {
     const shape = this.getTextShape(text, font);
     return {
       x: Math.round(coordinate.x + this.INNER_X_OFFSET + (this.INNER_WIDTH - shape.x)/2),
       y: Math.round(coordinate.y + this.INNER_Y_OFFSET + (this.INNER_HEIGHT - (0.18*this.INNER_HEIGHT+shape.y)))
+    } as Coordinate;
+  }
+
+  private getNetworkPerformanceCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font) {
+    const shape = this.getTextShape(text, font);
+    return {
+      x: Math.round(coordinate.x + (this.OUTTER_WIDTH - shape.x)/2),
+      y: this.getBottmCoordinate(coordinate).y + this.NETWORK_PERFORMANCE_Y_OFFSET,
     } as Coordinate;
   }
 }
@@ -472,11 +516,9 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
 }
 
 class LinkGenerator{
-  private textGenerator: EchartsGraphic.TextGenerator;
   private lineGenerator: EchartsGraphic.LineGenerator;
 
   constructor(){
-    this.textGenerator = new EchartsGraphic.TextGenerator();
     this.lineGenerator = new EchartsGraphic.LineGenerator();
   }
 
@@ -515,8 +557,23 @@ export class EchartsGraphicService{
     vmName: string,
     utilisation: number,
     status: VMStatus,
-  ): EchartsElement {
-    return this.vmGroupGenerator.getVMGroup({x:x, y:y}, vmName, utilisation, status)
+    throughput: number,
+    packetRate: number,
+  ): EchartsVMGroup {
+    const upperLeftCooridnate: Coordinate = {x:x, y:y};
+    return {
+      vmGroup: this.vmGroupGenerator.getVMGroup(
+        upperLeftCooridnate, 
+        vmName, 
+        utilisation, 
+        status, 
+      ),
+      networkPerformance: this.vmGroupGenerator.getVMNetworkPerformance(
+        upperLeftCooridnate,
+        throughput,
+        packetRate,
+      )
+    } as EchartsVMGroup;
   };
 
   public getLoadBalancer(
@@ -524,7 +581,7 @@ export class EchartsGraphicService{
     y: number,
     throughput: number, 
   ): EchartsElement{
-    return this.lbGenerator.getLoadBalancer({x:x, y:y}, throughput);
+    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, throughput);
   };
 
   public getZone(
@@ -532,7 +589,7 @@ export class EchartsGraphicService{
     y: number,
     name: string, 
   ): EchartsElement{
-    return this.zoneGenerator.getZone({x:x, y:y}, name);
+    return this.zoneGenerator.getZone({x:x, y:y} as Coordinate, name);
   };
 
   public drawLine(
