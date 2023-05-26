@@ -33,7 +33,7 @@ export namespace EchartsGraphic{
   export enum Colour {
     white = '#ffffff',
     black = '#000000',
-    grey = '#D0D0D0',
+    rectGrey = '#D0D0D0',
     textGrey = '#8E8E8E',
     green = '#00A600',
     yellow = '#f7941d',
@@ -45,6 +45,7 @@ export namespace EchartsGraphic{
     vmUtilisation = '22px sans-serif',
     vmStatus = '16px sans-serif',
     vmNetworkPerformance = '17px sans-serif',
+    lbNetworkPerformance = '17px sans-serif',
     lbBody = '16px sans-serif',
     zoneBody = '16px sans-serif',
   };
@@ -146,7 +147,7 @@ export namespace EchartsGraphic{
     protected getBottmCoordinate(upperLeft: Coordinate, width: number = this.OUTTER_WIDTH, height: number = this.OUTTER_HEIGHT): Coordinate{
       return {x:Math.round(upperLeft.x+width/2), y:upperLeft.y+height};
     }
-    protected getleftCoordinate(upperLeft: Coordinate, height: number = this.OUTTER_HEIGHT): Coordinate{
+    protected getLeftCoordinate(upperLeft: Coordinate, height: number = this.OUTTER_HEIGHT): Coordinate{
       return {x:upperLeft.x, y:Math.round(upperLeft.y+height/2)};
     }
     protected getRightCoordinate(upperLeft: Coordinate, width: number = this.OUTTER_WIDTH, height: number = this.OUTTER_HEIGHT): Coordinate{
@@ -182,7 +183,7 @@ const isYellow = (utilisation: number) => 50 <= utilisation && utilisation <= 70
 const isRed = (utilisation: number) => utilisation > 70
 const vmUtilisationToTextColour = (utilisation: number) => {
   switch(true){
-    case isGrey(utilisation): return EchartsGraphic.Colour.grey;
+    case isGrey(utilisation): return EchartsGraphic.Colour.rectGrey;
     case isGreen(utilisation): return EchartsGraphic.Colour.green;
     case isYellow(utilisation): return EchartsGraphic.Colour.yellow;
     case isRed(utilisation): return EchartsGraphic.Colour.red;
@@ -194,7 +195,14 @@ const vmUtilisationToTextColour = (utilisation: number) => {
 const lbStatusToRectColour = (status: LBStatus) => {
   return {
     [LBStatus.online]: EchartsGraphic.Colour.green,
-    [LBStatus.offline]: EchartsGraphic.Colour.grey,
+    [LBStatus.offline]: EchartsGraphic.Colour.rectGrey,
+  }[status]
+}
+
+const lbStatusToTextColour = (status: LBStatus) => {
+  return {
+    [LBStatus.online]: EchartsGraphic.Colour.green,
+    [LBStatus.offline]: EchartsGraphic.Colour.textGrey,
   }[status]
 }
 
@@ -245,7 +253,7 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     return {
       top: this.getTopCoordinate(coordinate),
       bottom: this.getBottmCoordinate(coordinate),
-      left: this.getleftCoordinate(coordinate),
+      left: this.getLeftCoordinate(coordinate),
       right: this.getRightCoordinate(coordinate),
       element: vmGroup,
     } as EchartsElement;
@@ -265,7 +273,7 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
     return {
       top: this.getTopCoordinate(networkPerformanceCoordinate, textShape.x),
       bottom: this.getBottmCoordinate(networkPerformanceCoordinate, textShape.x, textShape.y),
-      left: this.getleftCoordinate(networkPerformanceCoordinate, textShape.y),
+      left: this.getLeftCoordinate(networkPerformanceCoordinate, textShape.y),
       right: this.getRightCoordinate(networkPerformanceCoordinate, textShape.x, textShape.y),
       element: networkPerformance,
     } as EchartsElement;
@@ -367,6 +375,8 @@ class VMGroupGenerator extends EchartsGraphic.BaseGenerator{
 class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
   private readonly INNER_X_OFFSET = 27;
   private readonly INNER_Y_OFFSET = -10;
+  private readonly NETWORK_PERFORMANCE_Y_OFFSET = 5;
+  private readonly NETWORK_PERFORMANCE_X_OFFSET = 5;
 
   private rectGenerator: EchartsGraphic.RectangleGenerator;
   private textGenerator: EchartsGraphic.TextGenerator;
@@ -377,37 +387,41 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     this.textGenerator = new EchartsGraphic.TextGenerator();
   }
 
-  public getLoadBalancer(coordinate: Coordinate, name: string, status: LBStatus): EchartsElement{
+  public getLoadBalancer(coordinate: Coordinate, name: string, status: LBStatus, throughput: number): EchartsElement{
     const lbBodyText = `${name}\n\n(${status})`;
-    const lbBodyTextCoordinate = this.getLBBodyCoordinate(lbBodyText, EchartsGraphic.Font.lbBody, coordinate);
-    let lbGroup: echarts.GraphicComponentOption = {
+    const vmThroughputText = throughput.toString() + ' Gbps'
+    const lbBodyTextCoordinate = this.getLBBodyCoordinate(coordinate, lbBodyText, EchartsGraphic.Font.lbBody);
+    const lbNetworkPerformanceTopCoordinate = this.getLBNetworkPerformanceTopCoordinate(coordinate, vmThroughputText, EchartsGraphic.Font.lbNetworkPerformance)
+    const lbNetworkPerformanceLeftCoordinate = this.getLBNetworkPerformanceLeftCoordinate(coordinate, vmThroughputText, EchartsGraphic.Font.lbNetworkPerformance)
+    const lbNetworkPerformanceRightCoordinate = this.getLBNetworkPerformanceRightCoordinate(coordinate, vmThroughputText, EchartsGraphic.Font.lbNetworkPerformance)
+    const lbGroup: echarts.GraphicComponentOption = {
       type: 'group',
       onclick: () => console.log('LB clicked'),
       children: [
         this.generateLBBodyRect(coordinate, lbStatusToRectColour(status)),
         this.generateLBBodyText(lbBodyTextCoordinate, lbBodyText),
+        this.generateLBNetworkPerformanceText(lbNetworkPerformanceTopCoordinate, vmThroughputText),
+        this.generateLBNetworkPerformanceText(lbNetworkPerformanceLeftCoordinate, vmThroughputText),
+        this.generateLBNetworkPerformanceText(lbNetworkPerformanceRightCoordinate, vmThroughputText),
       ]
     };
     return {
       top: this.getTopCoordinate(coordinate),
       bottom: this.getBottmCoordinate(coordinate),
-      left: this.getleftCoordinate(coordinate),
+      left: this.getLeftCoordinate(coordinate),
       right: this.getRightCoordinate(coordinate),
       element: lbGroup,
     } as EchartsElement;
   }
   
-  private throughputStatusMapper(throughput: number): string {
-    // make this specific for lb after colour factory is done
-    switch(true){
-      case isGrey(throughput): return LBStatus.offline;
-      case isGreen(throughput): return LBStatus.online;
-      case isYellow(throughput): return LBStatus.online;
-      case isRed(throughput): return LBStatus.online;
-      default:
-        // should never get here
-        throw new Error(`Invalid throughput: ${throughput}`)
-    }
+  private generateLBNetworkPerformanceText(coordinate: Coordinate, text: string){
+    return this.textGenerator.generate(
+      coordinate.x,
+      coordinate.y,
+      text,
+      EchartsGraphic.Font.lbNetworkPerformance,
+      EchartsGraphic.Colour.black,
+    );
   }
 
   private generateLBBodyRect(coordinate: Coordinate, colour: EchartsGraphic.Colour) {
@@ -431,13 +445,37 @@ class LoadBalanerGenerator extends EchartsGraphic.BaseGenerator{
     )
   }
 
-  private getLBBodyCoordinate(text: string, font: EchartsGraphic.Font, coordinate: Coordinate) {
+  private getLBBodyCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font) {
     // we need the INNER_X_OFFSET because we set the textAlign to centre here
     const shape = this.getTextShape(text, font);
     return {
       x:Math.round(coordinate.x + this.INNER_X_OFFSET + (this.OUTTER_WIDTH - shape.x)/2),
       y:Math.round(coordinate.y + this.INNER_Y_OFFSET + (this.OUTTER_HEIGHT - shape.y)/2),
     } as Coordinate;
+  }
+  
+  private getLBNetworkPerformanceTopCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font){
+    const shape = this.getTextShape(text, font);
+    return{
+      x: coordinate.x + (this.OUTTER_WIDTH - shape.x)/2,
+      y: coordinate.y - shape.y - this.NETWORK_PERFORMANCE_Y_OFFSET,
+    };
+  }
+  private getLBNetworkPerformanceLeftCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font){
+    const shape = this.getTextShape(text, font);
+    const left = this.getLeftCoordinate(coordinate);
+    return{
+      x: left.x - shape.x - this.NETWORK_PERFORMANCE_X_OFFSET,
+      y: left.y - shape.y - this.NETWORK_PERFORMANCE_Y_OFFSET,
+    };
+  }
+  private getLBNetworkPerformanceRightCoordinate(coordinate: Coordinate, text: string, font: EchartsGraphic.Font){
+    const shape = this.getTextShape(text, font);
+    const right = this.getRightCoordinate(coordinate);
+    return{
+      x: right.x + this.NETWORK_PERFORMANCE_X_OFFSET,
+      y: right.y - shape.y - this.NETWORK_PERFORMANCE_Y_OFFSET,
+    };
   }
 }
 
@@ -467,7 +505,7 @@ class ZoneGenerator extends EchartsGraphic.BaseGenerator{
     return {
       top: this.getTopCoordinate(coordinate),
       bottom: this.getBottmCoordinate(coordinate),
-      left: this.getleftCoordinate(coordinate),
+      left: this.getLeftCoordinate(coordinate),
       right: this.getRightCoordinate(coordinate),
       element: zoneGroup,
     } as EchartsElement;
@@ -574,8 +612,9 @@ export class EchartsGraphicService{
     y: number,
     name: string,
     status: LBStatus, 
+    throughput: number,
   ): EchartsElement{
-    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, name, status);
+    return this.lbGenerator.getLoadBalancer({x:x, y:y} as Coordinate, name, status, throughput);
   };
 
   public getZone(

@@ -13,11 +13,11 @@ export class EchartsPractiseComponent {
     const element = document.getElementById('main');
     if (element){
       let chart = echarts.init(element);
-      const lb = this.echartsService.getLoadBalancer(575, 400, 'LB-01', LBStatus.online);
+      const lb = this.echartsService.getLoadBalancer(575, 400, 'LB-01', LBStatus.offline, 46);
       const zoneA = this.echartsService.getZone(50, 415, 'A');
       const zoneB = this.echartsService.getZone(1150, 415, 'B');
       const VM1 = this.echartsService.getVMGroup(50, 50, 'VM1', 0, VMStatus.offline, 4, 0);
-      const VM2 = this.echartsService.getVMGroup(150, 50, 'VM22', 0, VMStatus.offline, 0, 0);
+      const VM2 = this.echartsService.getVMGroup(150, 50, 'VM2', 0, VMStatus.offline, 0, 0);
       const VM3 = this.echartsService.getVMGroup(250, 50, 'VM333', 50, VMStatus.online, 4, 1);
       const VM4 = this.echartsService.getVMGroup(350, 50, 'VM4444', 87, VMStatus.online, 0, 0);
       const VM5 = this.echartsService.getVMGroup(450, 50, 'VM5', 53, VMStatus.online, 4, 1);
