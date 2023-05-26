@@ -115,6 +115,7 @@ export namespace EchartsGraphic{
       y1: number,
       x2: number,
       y2: number,
+      opacity: number = 0.3,
     ): echarts.GraphicComponentOption{
       return {
         type: 'line',
@@ -125,7 +126,8 @@ export namespace EchartsGraphic{
           y2: y2,
         },
         style: {
-          stroke: EchartsGraphic.Colour.black
+          stroke: EchartsGraphic.Colour.black,
+          opacity: opacity,
         },
       };
     }
@@ -554,13 +556,15 @@ class LinkGenerator{
 
   drawLine(
     from: Coordinate,
-    to: Coordinate
+    to: Coordinate,
+    opacity?: number,
   ): echarts.GraphicComponentOption{
     return this.lineGenerator.generate(
       from.x,
       from.y,
       to.x,
       to.y,
+      opacity,
     );
   }
 }
@@ -627,8 +631,9 @@ export class EchartsGraphicService{
 
   public drawLine(
     from: Coordinate,
-    to: Coordinate
+    to: Coordinate,
+    opacity?: number,
   ): echarts.GraphicComponentOption{
-    return this.linkGenerator.drawLine(from, to);
+    return this.linkGenerator.drawLine(from, to, opacity);
   };
 }
