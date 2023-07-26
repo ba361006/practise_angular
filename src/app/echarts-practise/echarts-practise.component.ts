@@ -13,6 +13,46 @@ export class EchartsPractiseComponent {
     const element = document.getElementById('main');
     if (element){
       let chart = echarts.init(element);
+      let isDrag = false;
+      const can = {
+        type: 'group',
+        draggable: true,
+        x: 0,
+        y: 0,
+        // width: 500,
+        // height: 500,
+        children: [
+          {
+            type: 'rect',
+            cursor: 'default',
+            shape: {
+              x: -500,
+              y: -500,
+              width: 9999,
+              height: 9999,
+            },
+            style:{opacity: 0},
+            onmousedown: () => chart.getZr().setCursorStyle('move'),
+            onmouseup: () => chart.getZr().setCursorStyle('default'),
+            ondragenter: () => {
+              isDrag = true;
+              chart.getZr().setCursorStyle('move')
+            },
+            onmousemove: () => {
+              if(isDrag){
+                chart.getZr().setCursorStyle('move');
+              }
+            },
+            ondrop: () => {
+              isDrag = false;
+              chart.getZr().setCursorStyle('default');
+            },
+          },
+          this.echartsService.getVMGroup(50, 200, 'VMXX', 0, VMStatus.offline, 4, 0).vmGroup.element,
+          this.echartsService.getVMGroup(1350, 200, 'VMYY', 0, VMStatus.offline, 4, 0).vmGroup.element,
+        ],
+        // onclick: () => console.log('group on click')
+      }
       const lb = this.echartsService.getLoadBalancer(575, 400, 'LB-01', LBStatus.offline, 46);
       const zoneA = this.echartsService.getZone(50, 415, 'A');
       const zoneB = this.echartsService.getZone(1150, 415, 'B');
@@ -27,51 +67,52 @@ export class EchartsPractiseComponent {
       const VM9 = this.echartsService.getVMGroup(850, 50, 'VM9', 69, VMStatus.online, 4, 1);
       const VM10 = this.echartsService.getVMGroup(950, 50, 'VM10', 1, VMStatus.online, 4, 1);
       const VM11 = this.echartsService.getVMGroup(1050, 50, 'VM11', 0, VMStatus.online, 0, 2);
-      const VM12 = this.echartsService.getVMGroup(1150, 50, 'VM12', 100, VMStatus.online, 4, 1);
+      const VM12 = this.echartsService.getVMGroup(1350, 50, 'VM12', 100, VMStatus.online, 4, 1);
       chart.setOption({
         graphic: {
           elements: [
-            VM1.vmGroup.element,
-            VM1.networkPerformance.element,
-            VM2.vmGroup.element,
-            VM2.networkPerformance.element,
-            VM3.vmGroup.element,
-            VM3.networkPerformance.element,
-            VM4.vmGroup.element,
-            VM4.networkPerformance.element,
-            VM5.vmGroup.element,
-            VM5.networkPerformance.element,
-            VM6.vmGroup.element,
-            VM6.networkPerformance.element,
-            VM7.vmGroup.element,
-            VM7.networkPerformance.element,
-            VM8.vmGroup.element,
-            VM8.networkPerformance.element,
-            VM9.vmGroup.element,
-            VM9.networkPerformance.element,
-            VM10.vmGroup.element,
-            VM10.networkPerformance.element,
-            VM11.vmGroup.element,
-            VM11.networkPerformance.element,
-            VM12.vmGroup.element,
-            VM12.networkPerformance.element,
-            lb.element,
-            zoneA.element,
-            zoneB.element,
-            this.echartsService.drawLine(lb.top, VM1.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM2.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM3.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM4.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM5.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM6.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM7.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM8.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM9.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM10.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM11.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.top, VM12.networkPerformance.bottom),
-            this.echartsService.drawLine(lb.left, zoneA.right),
-            this.echartsService.drawLine(lb.right, zoneB.left),
+            can,
+            // VM1.vmGroup.element,
+            // VM1.networkPerformance.element,
+            // VM2.vmGroup.element,
+            // VM2.networkPerformance.element,
+            // VM3.vmGroup.element,
+            // VM3.networkPerformance.element,
+            // VM4.vmGroup.element,
+            // VM4.networkPerformance.element,
+            // VM5.vmGroup.element,
+            // VM5.networkPerformance.element,
+            // VM6.vmGroup.element,
+            // VM6.networkPerformance.element,
+            // VM7.vmGroup.element,
+            // VM7.networkPerformance.element,
+            // VM8.vmGroup.element,
+            // VM8.networkPerformance.element,
+            // VM9.vmGroup.element,
+            // VM9.networkPerformance.element,
+            // VM10.vmGroup.element,
+            // VM10.networkPerformance.element,
+            // VM11.vmGroup.element,
+            // VM11.networkPerformance.element,
+            // VM12.vmGroup.element,
+            // VM12.networkPerformance.element,
+            // lb.element,
+            // zoneA.element,
+            // zoneB.element,
+            // this.echartsService.drawLine(lb.top, VM1.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM2.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM3.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM4.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM5.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM6.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM7.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM8.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM9.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM10.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM11.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.top, VM12.networkPerformance.bottom),
+            // this.echartsService.drawLine(lb.left, zoneA.right),
+            // this.echartsService.drawLine(lb.right, zoneB.left),
           ]
         }
       })
